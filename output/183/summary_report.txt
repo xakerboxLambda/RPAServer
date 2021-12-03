@@ -1,0 +1,11 @@
+REPORT ON ALL PROCESSED INVOICED FOR Demo Company (Global)
+Report generated at: 02 December 16:58:20
+
+Totally reconcilation robot processed:.........21 items
+
+Matched invoices detected and processed:.......0
+
+Comments leave (operator review needed):.......1
+
+Transactions that have no aproved rules:.......0
+

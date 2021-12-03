@@ -1,0 +1,16 @@
+Report for not matched invoices of Demo Company (Global)
+Generated at: 02 December 16:46:40
+
+,Bank Statement Lines,,,,Transactions,,,,
+
+Transaction No,Description Name,Ref,Spent,Received, ,Matched Contact,Ref,Spent,Received
+1,Hamilton Smith,0018,-,541.25 ,,Hamilton Smith Ltd,Ref: INV-0018,-,541.25
+2,Hoyt Productions Limited,08-4123,5.953.75 ,-,,Hoyt Productions,Ref: 08-4123,5.953.75,-
+3,ABC Furniture,710,1.000.00 ,-,,ABC Furniture,Ref: 710,1.000.00,-
+4,Young Brothers Transport,0019,-,541.25 ,,Young Bros Transport,Ref: INV-0019,-,541.25
+5,Port & Philip Freight Limited,0020,-,541.25 ,,Port & Philip Freight,Ref: INV-0020,-,541.25
+6,Rex Media Group,0021,-,541.25 ,,Rex Media Group,Ref: INV-0021,-,541.25
+7,Ridgeway University,0025,-,6.187.50 ,,Ridgeway University,Ref: INV-0025,-,6.187.50
+8,Truxton Property Management,,1.181.25 ,-,,Truxton Property Management,Ref: RENT,1.181.25,-
+9,Gateway Motors,,411.35 ,-,,Gateway Motors,-,411.35,-
+10,7-Eleven, ,15.50 ,-,"Rule for transaction aplied",,,

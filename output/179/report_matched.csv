@@ -1,0 +1,10 @@
+Report for not matched invoices of Demo Company (Global)
+Generated at: 02 December 16:12:11
+
+,Bank Statement Lines,,,,Transactions,,,,
+
+Transaction No,Description Name,Ref,Spent,Received, ,Matched Contact,Ref,Spent,Received
+1,Ridgeway University,0009,-,6.187.50 ,,Ridgeway University,Ref: INV-0009,-,6.187.50
+2,Greenville, O.,,29.50 ,-,,Vladimir Kuzin,-,29.50,-
+3,Woolworths Oaktown,Eft,34.10 ,-,,Swanston Security,Ref: AP,34.10,-
+4,DIISR,0021,-,216.50 ,,DIISR - Small Business Services,Ref: INV-0022,-,216.50

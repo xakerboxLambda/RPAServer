@@ -1,0 +1,10 @@
+Report for not matched invoices of Demo Company (Global)
+Generated at: 03 December 11:54:31
+
+,Bank Statement Lines,,,,Transactions,,,,
+
+Transaction No,Description Name,Ref,Spent,Received, ,Matched Contact,Ref,Spent,Received
+1,SMART Agency 01950210, ,4.500.00 ,-,"Rule for transaction aplied",,,
+2,Truxton Property Management,,1.181.25 ,-,,Truxton Property Management,Ref: RENT,1.181.25,-
+3,Gateway Motors,,411.35 ,-,,Gateway Motors,-,411.35,-
+4,7-Eleven, ,15.50 ,-,"Rule for transaction aplied",,,

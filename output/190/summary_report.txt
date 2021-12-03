@@ -1,0 +1,11 @@
+REPORT ON ALL PROCESSED INVOICED FOR My Robo Vault
+Report generated at: 03 December 12:22:31
+
+Totally reconcilation robot processed:.........79 items
+
+Matched invoices detected and processed:.......0
+
+Comments leave (operator review needed):.......1
+
+Transactions that have no aproved rules:.......0
+
