@@ -1,34 +1,16 @@
-# from RPA.Robocorp.Vault import Vault
 from os.path import join, dirname
 from RPA.Browser.Selenium import Selenium
-# from RPA.Robocorp.WorkItems import UNDEFINED, WorkItems
 import os
 import time
 import json
-import dotenv
 import requests
 import sys
-from base64 import b64decode
-from Crypto.Cipher import AES
-from Crypto.Protocol.KDF import PBKDF2
 import re
 from dotenv import load_dotenv
-from datetime import datetime
-import subprocess
-
-def actual_time():
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    return current_time
-
-def actual_time_with_date():
-    now = datetime.now()
-    current_time = now.strftime("%d %B %H:%M:%S")
-    return current_time
+import utils
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
-# sec = dotenv.get_key('SECRET')
 
 browser = Selenium()
 
@@ -40,22 +22,21 @@ status_sender_url = os.environ['URL_FOR_LOGS']
 otp_get_url = os.environ['OTP_GET_URL']
 url_temp_send_files = os.environ['URL_FOR_UPLOAD']
 
-# robocorp_webhook = 'https://api-dev.gdeeto.com/bots/webhook'
 # Variables
-url = 'https://login.xero.com/identity/user/login'
-user_name = received['userName'] #items.get_work_item_variable('userName')
-user_password = received['userPassword'] #items.get_work_item_variable('userPassword')
-organization_name =  received['organizationName'] #items.get_work_item_variable('organizationName')
-phrase_for_comment = received['commentPhrase'] #items.get_work_item_variable('commentPhrase')
-phrase_if_error_exist = received['errorPhrase'] #items.get_work_item_variable('errorPhrase')
+url_Xero = 'https://login.xero.com/identity/user/login'
+user_name = received['userName']
+user_password = received['userPassword'] 
+organization_name =  received['organizationName']
+phrase_for_comment = received['commentPhrase']
+phrase_if_error_exist = received['errorPhrase']
 phrase_for_cheking_rule = 'The rule on this transaction need additional check by operator.'
-bank_quantity = received['bankQuantity'] #items.get_work_item_variable('bankQuantity')
+bank_quantity = received['bankQuantity']
 base_url_link_organization = 'https://go.xero.com/OrganisationLogin/?shortCode='
-shortCode_link = received['shortCode'] #items.get_work_item_variable('shortCode')
-company_name = received['companyName'] #items.get_work_item_variable('companyName')
-organizationId = received['organizationId'] #items.get_work_item_variable('organizationId')
-runId = received['runId'] #items.get_work_item_variable('runId')
-secret = os.environ['SECRET'] #secrets.get_secret('secret_key')
+shortCode_link = received['shortCode']
+company_name = received['companyName']
+organizationId = received['organizationId']
+runId = received['runId']
+secret = os.environ['SECRET']
 
 # Left/right column selectors (Company Name, Spent, Received)
 left_company_name = '(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../../div//*[@class="details"]/span[2]'
@@ -77,53 +58,23 @@ statusReconcile = ''
 
 os.makedirs(f'./output/{runId}', exist_ok=True)
 
-# directory = os.path.dirname(f'./output/{runId}')
-# if not os.path.exists(directory):
-#     os.mkdir(f'./output/{runId}')
+matched_report = utils.Reports.create_matched_report(runId, organization_name)
+not_matched_report = utils.Reports.create_not_matched_report(runId, organization_name)
+summary_report = utils.Reports.create_summary_report(runId, organization_name)
 
-report = open(f"./output/{runId}/report_matched.csv", "w")
-report.write(f'''Report for not matched invoices of {organization_name}\nGenerated at: {actual_time_with_date()}\n
-,Bank Statement Lines,,,,Transactions,,,,\n
-Transaction No,Description Name,Ref,Spent,Received, ,Matched Contact,Ref,Spent,Received\n''')
-
-summary_report = open(f"./output/{runId}/summary_report.txt", "w")
-summary_report.write(f'REPORT ON ALL PROCESSED INVOICED FOR {organization_name}\nReport generated at: {actual_time_with_date()}\n\n')
-
-not_matched_report = open (f"./output/{runId}/report_not_matched.csv", "w")
-not_matched_report.write(f'Report for not matched invoices of {organization_name}\nGenerated at: {actual_time_with_date()}\nTransaction No,Date,Description Name,Spent,Received\n')
-
-def started_process_report():
-    requests.post(f'https://api-dev.gdeeto.com/bots/update-run-status/{runId}')
-
-started_process_report()
-print('JSON was received. Sending updated status for process pending...')
-
-def decrypting_data(user_password, secret):
-    data = b64decode(user_password)
-    bytes = PBKDF2(secret, "testsalt", 48, 128)
-    iv = bytes[0:16]
-    key = bytes[16:48]
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-    decrypted_pass = cipher.decrypt(data).decode('utf-8')
-    decrypted_pass = str(decrypted_pass)
-    for n in decrypted_pass:
-      if ord(n) <= 32:
-        decrypted_pass = decrypted_pass.replace(n,'')
-    return decrypted_pass
+utils.StatusLog.send_start_processing_log(runId)
 
 try:
-    decrypted_pass = decrypting_data(user_password, secret)
+    decrypted_pass = utils.decrypt_user_password(user_password, secret)
 except Exception as e:
-    requests.post(f'{error_status}{runId}', json={'ErrorMessage' : str(e)})
+    utils.StatusLog.send_error_message(runId, e)
     print(e)
-    browser.click_element('Error with decoding')
 
 def live_logging(current_status):
     global totally_reconciled
     global transaction_counter
     global comment_count
-    send_status = {'data': f'{actual_time()} {current_status}'}
-    requests.post(f'{status_sender_url}{runId}', json=send_status)
+    utils.StatusLog.send_live_log(runId, current_status)
 
 def grabbing_table_values():
     global transaction_counter
@@ -150,14 +101,15 @@ def grabbing_table_values():
     else: 
         ref_right_text = '-'
 
+
     report_row = str(f'{transaction_counter},{left_company_name_text},{ref_left_text},{amount_spent_left_text},{amount_received_left_text},,{right_compamy_name_text},{ref_right_text},{amount_spent_right_text},{amount_received_right_text}\n')
-    report.write(report_row)
+    matched_report.write(report_row)
     transaction_counter += 1
     live_logging(f'Transaction {transaction_counter} matched for {left_company_name_text}')
 
 
 def logging_xero(user_name, user_password):
-    browser.open_available_browser(url)
+    browser.open_available_browser(url_Xero)
     browser.maximize_browser_window()
     browser.input_text('xpath=//*[@id="xl-form-email"]', user_name)
     time.sleep(1)
@@ -167,10 +119,9 @@ def logging_xero(user_name, user_password):
     live_logging('Logging in...')
 
 def otp_auth():
-    resp = requests.get(f'{otp_get_url}{runId}').json()
-    fin_otp = resp['data']['otp']
+    otp = utils.get_otp(runId)
     time.sleep(1)
-    browser.execute_javascript(f'document.querySelector("[placeholder]").value = \"{fin_otp}\"')
+    browser.execute_javascript(f'document.querySelector("[placeholder]").value = \"{otp}\"')
     time.sleep(1)
     browser.click_element('//*[@data-automationid="auth-submitcodebutton"]')
     live_logging('Generating 2-auth pass...')
@@ -184,7 +135,7 @@ def select_organisation():
     live_logging(f'Selecting company {organization_name}')
 
 def send_files(result_time, operation_status):
-        report.close()
+        matched_report.close()
         summary_report.close()
         not_matched_report.close()
         
@@ -207,27 +158,28 @@ def check_reconcile_exist():
         time.sleep(1)
         check_next_page_exist()
         output_summary_report()
+
         live_logging(f'Successfully finished processing {totally_reconciled} bank statement lines')
+
         time.sleep(1)
         end_time = time.time()
         result_time = end_time - start_time
-        print(result_time)
+        message_json = {'data': f'{utils.Time.actual_time()} Calculating invoices... Processed {totally_reconciled} bank statement lines', 'totallyReconciled': int(totally_reconciled), 'companyName': company_name, 'organizationId': organizationId }
 
-        requests.post(f'{status_sender_url}{runId}', json={ 'data': f'{actual_time()} Calculating invoices... Processed {totally_reconciled} bank statement lines', 'totallyReconciled': int(totally_reconciled), 'companyName': company_name, 'organizationId': organizationId }) 
+        utils.StatusLog.send_final_log(runId, message_json)
 
-        print(runId)
         send_files(result_time, 'completed')
 
-        # requests.post(f'{status_sender_url}{runId}', json={ 'data':'End.'} )
+        message_end_json = { 'data':'End.' }
+        utils.StatusLog.send_final_log(runId, message_end_json)
 
     else:
-        requests.post(f'{status_sender_url}{runId}', json={'data': f'{actual_time()} There\'s no invoices to reconcile.','totallyReconciled': '0', 'companyName': company_name, 'organizationId': organizationId}) 
+        message_no_reconcile_json = {'data': f'{utils.Time.actual_time()} There\'s no invoices to reconcile.','totallyReconciled': '0', 'companyName': company_name, 'organizationId': organizationId}
+        utils.StatusLog.send_final_log(runId, message_no_reconcile_json)
         send_files('10', 'completed')
 
         return
     time.sleep(2)
-
-
 
 def ok_press():
     global rule_transactions
@@ -245,7 +197,7 @@ def ok_press():
             amount_received_left_text = '-'
 
         report_row = str(f'{transaction_counter},{left_company_name_text}, ,{amount_spent_left_text},{amount_received_left_text},"Rule for transaction aplied",,,\n')
-        report.write(report_row)
+        matched_report.write(report_row)
         browser.set_focus_to_element('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]')
         browser.click_element('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]')
         time.sleep(3)
@@ -343,7 +295,6 @@ def output_summary_report():
     summary_report.write(f'Transactions that have no aproved rules:.......{rule_transactions}\n\n')
 
 
-
 try:
     start_time = time.time()
     logging_xero(user_name, user_password=decrypted_pass)
@@ -352,7 +303,7 @@ try:
     check_reconcile_exist()
 
 except Exception as e:
-    requests.post(f'{error_status}{runId}', json={'ErrorMessage': str(e)})
+    utils.StatusLog.send_error_message(runId, e)
     browser.capture_page_screenshot(f'./output/{runId}/error_place.png')
 
     send_files(None, 'error')

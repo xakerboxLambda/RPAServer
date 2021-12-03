@@ -1,0 +1,9 @@
+Report for not matched invoices of Demo Company (Global)
+Generated at: 03 December 14:39:01
+
+,Bank Statement Lines,,,,Transactions,,,,
+
+Transaction No,Description Name,Ref,Spent,Received, ,Matched Contact,Ref,Spent,Received
+1,Truxton Property Management,,1.181.25 ,-,,Truxton Property Management,Ref: RENT,1.181.25,-
+2,Gateway Motors,,411.35 ,-,,Gateway Motors,-,411.35,-
+3,7-Eleven, ,15.50 ,-,"Rule for transaction aplied",,,

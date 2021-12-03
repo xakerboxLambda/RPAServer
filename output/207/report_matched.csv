@@ -1,0 +1,12 @@
+Report for not matched invoices of Demo Company (Global)
+Generated at: 17:18:21
+
+    ,Bank Statement Lines,,,,Transactions,,,,
+
+    Transaction No,Description Name,Ref,Spent,Received, ,Matched Contact,Ref,Spent,Received
+1,Port & Philip Freight Limited,0020,-,541.25 ,,Port & Philip Freight,Ref: INV-0020,-,541.25
+2,Rex Media Group,0021,-,541.25 ,,Rex Media Group,Ref: INV-0021,-,541.25
+3,Ridgeway University,0025,-,6.187.50 ,,Ridgeway University,Ref: INV-0025,-,6.187.50
+4,Truxton Property Management,,1.181.25 ,-,,Truxton Property Management,Ref: RENT,1.181.25,-
+5,Central City Parking, ,12.00 ,-,"Rule for transaction aplied",,,
+6,7-Eleven, ,15.50 ,-,"Rule for transaction aplied",,,

@@ -9,11 +9,7 @@ class JobCheckerProcess implements Process {
   private ERRORS_SEND_URL = process.env.ERRORS_SEND_URL;
   private URL_FOR_UPLOAD_TEST = process.env.URL_FOR_UPLOAD_TEST;
 
-  public constructor() {}
-  
-  public soberiGamno = () => {
-    console.log('Hi!');
-  }  
+  public constructor() {} 
 
   public checkForRuns = async () => {
     const runBotProcess = await axios.get<OkResponse>('https://api-dev.gdeeto.com/bots/pending-runs', {
@@ -27,7 +23,7 @@ class JobCheckerProcess implements Process {
         recievedJobs.forEach(job => {
           console.log(job);
           const stringifiedJob = JSON.stringify(job);
-          const runId = job.runId;
+
           const options: Object = {
             mode: "text",
             pythonOptions: ["-u"],
