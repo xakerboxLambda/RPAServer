@@ -185,7 +185,9 @@ def ok_press():
     global rule_transactions
     global transaction_counter
 
-    while browser.is_element_visible('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../..//*[@class="info c3"]//label') and browser.get_text('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../..//*[@class="info c3"]//label') == 'Apply rule':
+    #while browser.is_element_visible('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../..//*[@class="info c3"]//label') and browser.get_text('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../..//*[@class="info c3"]//label') == 'Apply rule':
+    #while browser.is_element_visible('((//label[text()="Apply rule"])/../../../..//*[@class="xbtn skip okayButton exclude" and @style="visibility: visible;"])[1]'):
+    while browser.does_page_contain_element('((//*[@class="statement create ruled"])//..//*[@class="xbtn skip okayButton exclude" and @style="visibility: visible;"])[1]'):   
         left_company_name_text = browser.get_text(left_company_name)
         if browser.does_page_contain_element(left_amount_spent):
             amount_spent_left_text = str(browser.get_text(left_amount_spent)).replace(',','.')
@@ -198,8 +200,10 @@ def ok_press():
 
         report_row = str(f'{transaction_counter},{left_company_name_text}, ,{amount_spent_left_text},{amount_received_left_text},"Rule for transaction aplied",,,\n')
         matched_report.write(report_row)
-        browser.set_focus_to_element('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]')
-        browser.click_element('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]')
+        #browser.set_focus_to_element('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]')
+        #browser.click_element('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]')
+        browser.set_focus_to_element('((//*[@class="statement create ruled"])//..//*[@class="xbtn skip okayButton exclude" and @style="visibility: visible;"])[1]')
+        browser.click_element('((//*[@class="statement create ruled"])//..//*[@class="xbtn skip okayButton exclude" and @style="visibility: visible;"])[1]')
         time.sleep(3)
         transaction_counter += 1
         live_logging(f'Transaction {transaction_counter} matched with rule for {left_company_name_text}')

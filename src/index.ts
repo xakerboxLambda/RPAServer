@@ -12,7 +12,7 @@ const main = async () => {
   const controllers = [processController];
 
   cron.addProcess(jobCheckerProcess);
-  const port = 5555;
+  const port = 5556;
   const app = new App(controllers, port);
   app.listen();
   return app;

@@ -27,7 +27,7 @@ class Time:
 class Reports:
  def create_matched_report(runId, organization_name):
     report = open(f"./output/{runId}/report_matched.csv", "w")
-    report.write(f'''Report for not matched invoices of {organization_name}\nGenerated at: {Time.actual_time()}\n
+    report.write(f'''Report for matched invoices of {organization_name}\nGenerated at: {Time.actual_time()}\n
     ,Bank Statement Lines,,,,Transactions,,,,\n
     Transaction No,Description Name,Ref,Spent,Received, ,Matched Contact,Ref,Spent,Received\n''')
     return report
