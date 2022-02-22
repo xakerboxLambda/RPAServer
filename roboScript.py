@@ -37,6 +37,7 @@ company_name = received['companyName']
 organizationId = received['organizationId']
 runId = received['runId']
 secret = os.environ['SECRET']
+comment_status = received['is_comment_enabled']
 
 # Left/right column selectors (Company Name, Spent, Received)
 left_company_name = '(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../../div//*[@class="details"]/span[2]'
@@ -50,7 +51,7 @@ right_amount_spent = '(//*[text()[contains(.,"OK")] and @style="visibility: visi
 right_amount_received = '(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../../div//*[@class="amount set"]'
 
 # Counters for report
-transaction_counter = 1
+transaction_counter = 0
 comment_count = 1
 rule_transactions = 0
 totally_reconciled = ''
@@ -78,7 +79,11 @@ def live_logging(current_status):
 
 def grabbing_table_values():
     global transaction_counter
-    left_company_name_text = browser.get_text(left_company_name)
+    if browser.get_element_attribute(left_company_name, 'title'):
+        left_company_name_text = browser.get_element_attribute(left_company_name, 'title')
+    else:
+        left_company_name_text = browser.get_text(left_company_name)
+
     right_compamy_name_text = browser.get_text(right_compamy_name)
     if browser.does_page_contain_element(left_ref_field):
         ref_left_text = str(browser.get_text(left_ref_field)).replace(',','.')
@@ -105,7 +110,7 @@ def grabbing_table_values():
     report_row = str(f'{transaction_counter},{left_company_name_text},{ref_left_text},{amount_spent_left_text},{amount_received_left_text},,{right_compamy_name_text},{ref_right_text},{amount_spent_right_text},{amount_received_right_text}\n')
     matched_report.write(report_row)
     transaction_counter += 1
-    live_logging(f'Transaction {transaction_counter} matched for {left_company_name_text}')
+    live_logging(f'Transaction №{transaction_counter} matched for {left_company_name_text}')
 
 
 def logging_xero(user_name, user_password):
@@ -181,14 +186,16 @@ def check_reconcile_exist():
         return
     time.sleep(2)
 
-def ok_press():
-    global rule_transactions
+def rule_aprove():
     global transaction_counter
 
-    #while browser.is_element_visible('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../..//*[@class="info c3"]//label') and browser.get_text('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../..//*[@class="info c3"]//label') == 'Apply rule':
-    #while browser.is_element_visible('((//label[text()="Apply rule"])/../../../..//*[@class="xbtn skip okayButton exclude" and @style="visibility: visible;"])[1]'):
     while browser.does_page_contain_element('((//*[@class="statement create ruled"])//..//*[@class="xbtn skip okayButton exclude" and @style="visibility: visible;"])[1]'):   
-        left_company_name_text = browser.get_text(left_company_name)
+        #### Long name test
+        if browser.get_element_attribute(left_company_name, 'title'):
+            left_company_name_text = browser.get_element_attribute(left_company_name, 'title')
+        else:
+            left_company_name_text = browser.get_text(left_company_name)
+        ####
         if browser.does_page_contain_element(left_amount_spent):
             amount_spent_left_text = str(browser.get_text(left_amount_spent)).replace(',','.')
         else:
@@ -200,13 +207,20 @@ def ok_press():
 
         report_row = str(f'{transaction_counter},{left_company_name_text}, ,{amount_spent_left_text},{amount_received_left_text},"Rule for transaction aplied",,,\n')
         matched_report.write(report_row)
-        #browser.set_focus_to_element('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]')
-        #browser.click_element('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]')
         browser.set_focus_to_element('((//*[@class="statement create ruled"])//..//*[@class="xbtn skip okayButton exclude" and @style="visibility: visible;"])[1]')
         browser.click_element('((//*[@class="statement create ruled"])//..//*[@class="xbtn skip okayButton exclude" and @style="visibility: visible;"])[1]')
         time.sleep(3)
         transaction_counter += 1
-        live_logging(f'Transaction {transaction_counter} matched with rule for {left_company_name_text}')
+
+        live_logging(f'Transaction №{transaction_counter} matched with rule for {left_company_name_text}')
+
+def ok_press():
+    global rule_transactions
+    global transaction_counter
+
+    #while browser.is_element_visible('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../..//*[@class="info c3"]//label') and browser.get_text('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../..//*[@class="info c3"]//label') == 'Apply rule':
+    #while browser.is_element_visible('((//label[text()="Apply rule"])/../../../..//*[@class="xbtn skip okayButton exclude" and @style="visibility: visible;"])[1]'):
+    rule_aprove()
         
     browser.reload_page()
     while browser.does_page_contain_element('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]'):
@@ -216,7 +230,7 @@ def ok_press():
             '(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]')
         time.sleep(3)
         line_warn = 0
-        print(f'====> Reconciled {transaction_counter} invoice sucessfully... Next invoice processing<====')
+        
         if browser.does_page_contain_element('//*[@class=" x-window"]'):
             browser.click_element(
                 '//*[@class=" x-btn-text" and text()[contains(.,"Cancel")]]')
@@ -232,6 +246,11 @@ def ok_press():
             print('====>Leaving comment for non mathcing invoice. Please check it.<====')
             time.sleep(3)
 
+        if browser.does_page_contain_element('((//*[@class="statement create ruled"])//..//*[@class="xbtn skip okayButton exclude" and @style="visibility: visible;"])[1]'):
+            rule_aprove()
+
+
+
 ### Not matched transactions selectors
 not_matched_date = '(//*[@data-index]/div[@class="statement create"]/div/a[@class="t4"])[1]/../../..//*[@class="info"]//*[@class="details"]/span[1]'
 not_matched_company_name = '(//*[@data-index]/div[@class="statement create"]/div/a[@class="t4"])[1]/../../..//*[@class="info"]//*[@class="details"]/span[2]'
@@ -242,7 +261,13 @@ def comments_leave():
   while browser.does_page_contain_element('(//*[@data-index]/div[@class="statement create"]/div/a[@class="t4"])[1]'):
     global comment_count
     not_mathced_date_text = browser.get_text(not_matched_date)
-    not_mathced_company_name_text = browser.get_text(not_matched_company_name)
+
+### Long company names processing
+    if browser.get_element_attribute(not_matched_company_name, 'title'):
+        not_matched_company_name_text = browser.get_element_attribute(not_matched_company_name, 'title')
+    else:
+        not_matched_company_name_text = browser.get_text(not_matched_company_name)
+###
     if browser.does_page_contain_element(not_matched_spent):
         not_matched_spent_text = str(browser.get_text(not_matched_spent)).replace(',','.')
     else:
@@ -252,7 +277,7 @@ def comments_leave():
     else:
         not_mathed_received_text = '-'
     
-    not_matched_report.write(f'{comment_count},{not_mathced_date_text},{not_mathced_company_name_text},{not_matched_spent_text},{not_mathed_received_text}\n')
+    not_matched_report.write(f'{comment_count},{not_mathced_date_text},{not_matched_company_name_text},{not_matched_spent_text},{not_mathed_received_text}\n')
 
 
     discuss_id = browser.get_element_attribute('(//*[@data-index]/div[@class="statement create"]/div/a[@class="t4"])[1]/../*[@class="t4"]', 'id')
@@ -262,10 +287,9 @@ def comments_leave():
     browser.input_text(f'//*[@data-index="{text_field_input}"]//*[@class="info c5"]/textarea', phrase_for_comment, clear=True)
     time.sleep(1)
     browser.press_keys(None, "CTRL+s")
-    print(f'====>Leaving {comment_count}\'s comment for manual invoice checking.<====')
     comment_count += 1
     time.sleep(2)
-    live_logging(f'Leaving comment to {comment_count} invoice ==> {not_mathced_company_name_text}')
+    live_logging(f'Leaving comment to {comment_count} invoice ==> {not_matched_company_name_text}')
 
 def check_done():
   if browser.is_element_visible('//*[@id="AllDone"]'):
@@ -276,7 +300,8 @@ def check_next_page_exist():
         while browser.does_page_contain_element('(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]'):
             ok_press()
             browser.reload_page()
-        comments_leave()
+        if comment_status == True:
+            comments_leave()
         if browser.is_element_visible('//*[@id="mainPagerNext" and @style["display:"]]'):
             browser.click_element('//*[@id="mainPagerNext" and @style["display:"]]')
         else: return
@@ -286,7 +311,8 @@ def check_next_page_exist():
     else:
         ok_press()
         browser.reload_page()
-        comments_leave()
+        if comment_status == True:
+            comments_leave()
         browser.click_element('//*[@class="xnav-tab"]')
 
 def output_summary_report():
