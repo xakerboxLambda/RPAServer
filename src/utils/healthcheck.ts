@@ -6,7 +6,7 @@ import axios from 'axios';
 interface totalStatus {
     mem: string,
     cpu: string,
-    timeStamp?: number,
+    timeStamp: number,
 }
 
 const getCPULoad = async () => {
@@ -22,13 +22,19 @@ const getMEMLoad = async () => {
 const getLoads = async (): Promise<totalStatus> => {
     const cpu = await getCPULoad().then(res => res);
     const mem = await getMEMLoad().then(res => res);
-    return { cpu, mem }
+    const timeStamp = Date.now()
+    return { cpu, mem, timeStamp }
 }
 
 const sendSYSStatus = () => setInterval(() => {
     getLoads().then(res => {
-        res.timeStamp = Date.now();
-        axios.post('https://api-dev.gdeeto.com/jobs/health-check', { data: res })
+        try {
+        axios.post('https://api-dev.gdeeto.com/jobs/health-check', res);
+        //axios.post('https://5218-159-224-233-85.ngrok.io/jobs/health-check', res)
+        console.log(res)
+        } catch (e) {
+            console.error(e)
+        }
     })
 
 }, 3000)

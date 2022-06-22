@@ -7,12 +7,14 @@ import requests
 import sys
 import re
 from dotenv import load_dotenv
+from requests_toolbelt import user_agent
 import utils
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 browser = Selenium()
+
 
 received = sys.argv[1]
 received = json.loads(received)
@@ -24,6 +26,7 @@ url_temp_send_files = os.environ['URL_FOR_UPLOAD']
 
 # Variables
 url_Xero = 'https://login.xero.com/identity/user/login'
+# url_Xero = 'https://www.whatismybrowser.com/detect/what-is-my-user-agent/'
 user_name = received['userName']
 user_password = received['userPassword'] 
 organization_name =  received['organizationName']
@@ -32,6 +35,8 @@ phrase_if_error_exist = received['errorPhrase']
 phrase_for_cheking_rule = 'The rule on this transaction need additional check by operator.'
 bank_quantity = received['bankQuantity']
 base_url_link_organization = 'https://go.xero.com/OrganisationLogin/?shortCode='
+# base_url_link_organization = 'https://my.xero.com/Action/OrganisationLogin/'
+
 shortCode_link = received['shortCode']
 company_name = received['companyName']
 organizationId = received['organizationId']
@@ -67,6 +72,7 @@ utils.StatusLog.send_start_processing_log(runId)
 
 try:
     decrypted_pass = utils.decrypt_user_password(user_password, secret)
+    print(decrypted_pass)
 except Exception as e:
     utils.StatusLog.send_error_message(runId, e)
     print(e)
@@ -114,7 +120,8 @@ def grabbing_table_values():
 
 
 def logging_xero(user_name, user_password):
-    browser.open_available_browser(url_Xero)
+    # browser.open_browser(url_Xero, browser='opera', executable_path='./operadriver')
+    browser.open_browser(url_Xero, browser='chrome', executable_path='./chromedriver')
     browser.maximize_browser_window()
     browser.input_text('xpath=//*[@id="xl-form-email"]', user_name)
     time.sleep(1)
@@ -135,7 +142,12 @@ def otp_auth():
 
 
 def select_organisation():
-    browser.go_to(f'{base_url_link_organization}{shortCode_link}')
+    if browser.does_page_contain_element(f'//*[@class="x-content"]/h2/span/*[text()[contains(.,"{organization_name}")]]'):
+        time.sleep(5)
+        browser.click_element(f'//*[@class="x-content"]/h2/span/*[text()[contains(.,"{organization_name}")]]')
+    time.sleep(2)
+    print('Url with organization: ', base_url_link_organization+shortCode_link)
+    # browser.go_to(f'{base_url_link_organization}{shortCode_link}')
     time.sleep(3)
     live_logging(f'Selecting company {organization_name}')
 
@@ -143,7 +155,6 @@ def send_files(result_time, operation_status):
         matched_report.close()
         summary_report.close()
         not_matched_report.close()
-        
         payload={'timeSpent': str(result_time)}
         
         files=(
