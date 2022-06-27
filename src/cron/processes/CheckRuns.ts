@@ -1,7 +1,6 @@
 import { OkResponse, Process } from "@/interfaces/process";
 import axios from "axios";
 import { PythonShell } from 'python-shell';
-import fs from 'fs';
 
 class JobCheckerProcess implements Process {
   public readonly interval = '*/10 * * * * *'; // Every ten seconds
@@ -12,33 +11,37 @@ class JobCheckerProcess implements Process {
   public constructor() {} 
 
   public checkForRuns = async () => {
-    const runBotProcess = await axios.get<OkResponse>('https://api-dev.gdeeto.com/bots/pending-runs', {
+    try {
+      const runBotProcess = await axios.get<OkResponse>('https://api-dev.gdeeto.com/bots/pending-runs', {
         headers: {
             Authorization: `secret`,
         },
     });
+
     if (runBotProcess.data.data.length !== 0 ) {
-        const recievedJobs = runBotProcess.data.data;
+      const recievedJobs = runBotProcess.data.data;
 
-        recievedJobs.forEach(job => {
-          console.log(job);
-          const stringifiedJob = JSON.stringify(job);
+      recievedJobs.forEach(job => {
+        console.log(job);
+        const stringifiedJob = JSON.stringify(job);
 
-          const options: Object = {
-            mode: "text",
-            pythonOptions: ["-u"],
-            args: stringifiedJob,
-          };
-   
-          PythonShell.run('roboScript.py', options ,(err, pythonLog) =>{
-            console.log(pythonLog);
-            console.log(err);
-
+        const options: Object = {
+          mode: "text",
+          pythonOptions: ["-u"],
+          args: stringifiedJob,
+        };
+ 
+        PythonShell.run('roboScript.py', options ,(err, pythonLog) =>{
+          console.log(pythonLog);
+          console.log(err);
         });
-  
+
+      }
+      )};
+    } catch(e){
+      console.log(e);
     }
-        )};
-}
+  }
 }
 
 export default JobCheckerProcess;

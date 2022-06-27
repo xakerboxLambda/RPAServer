@@ -26,17 +26,15 @@ const getLoads = async (): Promise<totalStatus> => {
     return { cpu, mem, timeStamp }
 }
 
-const sendSYSStatus = () => setInterval(() => {
-    getLoads().then(res => {
+const sendSYSStatus = () => setInterval(async () => {
+    const serverStatus = await getLoads();
         try {
-        axios.post('https://api-dev.gdeeto.com/jobs/health-check', res);
-        //axios.post('https://5218-159-224-233-85.ngrok.io/jobs/health-check', res)
-        console.log(res)
+            axios.post('https://api-dev.gdeeto.com/jobs/health-check', serverStatus);
+            //axios.post('https://5218-159-224-233-85.ngrok.io/jobs/health-check', res)
+            console.log(serverStatus);
         } catch (e) {
             console.error(e)
         }
-    })
-
-}, 3000)
+    }, 3000)
 
 export default sendSYSStatus;
