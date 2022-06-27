@@ -147,7 +147,7 @@ def select_organisation():
         browser.click_element(f'//*[@class="x-content"]/h2/span/*[text()[contains(.,"{organization_name}")]]')
     time.sleep(2)
     print('Url with organization: ', base_url_link_organization+shortCode_link)
-    # browser.go_to(f'{base_url_link_organization}{shortCode_link}')
+    browser.go_to(f'{base_url_link_organization}{shortCode_link}')
     time.sleep(3)
     live_logging(f'Selecting company {organization_name}')
 

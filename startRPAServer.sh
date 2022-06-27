@@ -17,7 +17,7 @@ printf "\n\nLocal IP of server is:${normal} ${RED} ${LocalIP} ${NC}"
 printf  "\n${bold}${GREEN}Server started on:${normal}${RED} ${DayToday}${NC}"
 cd /home/juan-rpa/Documents/RPAServerTest
 sleep 1s
-npm run dev
+node ./build/index.js
 #sleep 5s
 #cd /home/juan-rpa/Documents/RPAServerTest
 #./sysmonitor.sh
