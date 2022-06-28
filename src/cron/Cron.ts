@@ -14,7 +14,7 @@ class Cron {
 
   public addProcess = (process: Process) => {
     this.cron.schedule(process.interval, process.checkForRuns, this.options).start();
-
+    this.cron.schedule(process.intervalHealthChecker, process.sendSYSStatus, this.options).start();
   };
 }
 

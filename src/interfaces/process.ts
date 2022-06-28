@@ -1,7 +1,9 @@
 export interface Process {
     readonly interval: string;
+    readonly intervalHealthChecker: string;
 
     checkForRuns(): void;
+    sendSYSStatus(): void;
   }
 
 
