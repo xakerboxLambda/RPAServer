@@ -16,7 +16,7 @@ base_url = os.environ['BASE_URL_DEV']
 class Time:
  def actual_time():
     now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
+    current_time = now.strftime("%m.%d.%Y %H:%M:%S")
     return current_time
 
  def actual_time_with_date():
@@ -29,7 +29,7 @@ class Reports:
     report = open(f"./output/{runId}/report_matched.csv", "w")
     report.write(f'''Report for matched invoices of {organization_name}\nGenerated at: {Time.actual_time()}\n
     ,Bank Statement Lines,,,,Transactions,,,,\n
-    Transaction No,Description Name,Ref,Spent,Received, ,Matched Contact,Ref,Spent,Received\n''')
+    Transaction No,Date,Description Name,Ref,Spent,Received, ,Matched Contact,Ref,Spent,Received\n''')
     return report
 
  def create_summary_report(runId, organization_name):

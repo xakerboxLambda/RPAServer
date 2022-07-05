@@ -55,6 +55,8 @@ right_ref_field = '(//*[text()[contains(.,"OK")] and @style="visibility: visible
 right_amount_spent = '(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../../div//*[@class="amount set"]'
 right_amount_received = '(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../../div//*[@class="amount set"]'
 
+transaction_date = '(//*[text()[contains(.,"OK")] and @style="visibility: visible;"])[1]/../../div/div[2]/div/div/span'
+
 # Counters for report
 transaction_counter = 0
 comment_count = 1
@@ -111,9 +113,10 @@ def grabbing_table_values():
         ref_right_text = str(browser.get_text(right_ref_field)).replace(',','.')
     else: 
         ref_right_text = '-'
+    transaction_date_string = browser.get_text(transaction_date);
 
 
-    report_row = str(f'{transaction_counter},{left_company_name_text},{ref_left_text},{amount_spent_left_text},{amount_received_left_text},,{right_compamy_name_text},{ref_right_text},{amount_spent_right_text},{amount_received_right_text}\n')
+    report_row = str(f'{transaction_counter},{transaction_date_string},{left_company_name_text},{ref_left_text},{amount_spent_left_text},{amount_received_left_text},,{right_compamy_name_text},{ref_right_text},{amount_spent_right_text},{amount_received_right_text}\n')
     matched_report.write(report_row)
     transaction_counter += 1
     live_logging(f'Transaction №{transaction_counter} matched for {left_company_name_text}')
