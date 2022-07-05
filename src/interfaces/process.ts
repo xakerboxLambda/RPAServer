@@ -6,8 +6,6 @@ export interface Process {
     sendSYSStatus(): void;
   }
 
-
-
 export interface GetCurrenssyBTC {
 
 }
