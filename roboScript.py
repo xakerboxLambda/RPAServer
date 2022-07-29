@@ -74,7 +74,7 @@ utils.StatusLog.send_start_processing_log(runId)
 
 try:
     decrypted_pass = utils.decrypt_user_password(user_password, secret)
-    print(decrypted_pass)
+    # print(decrypted_pass)
 except Exception as e:
     utils.StatusLog.send_error_message(runId, e)
     print(e)
@@ -121,7 +121,7 @@ def grabbing_table_values():
     transaction_counter += 1
     live_logging(f'Transaction №{transaction_counter} matched for {left_company_name_text}')
 
-
+# Script starts here
 def logging_xero(user_name, user_password):
     # browser.open_browser(url_Xero, browser='opera', executable_path='./operadriver')
     browser.open_browser(url_Xero, browser='chrome', executable_path='./chromedriver')
